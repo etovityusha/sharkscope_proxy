@@ -27,5 +27,7 @@ if __name__ == "__main__":
             )
         case "worker":
             subprocess.call("celery -A worker.celery_app worker -l info", shell=True)
+        case "tg_bot":
+            subprocess.call("python tg_bot.py", shell=True)
         case _:
             raise ValueError(f"Unknown component: {_component}")

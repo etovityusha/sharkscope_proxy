@@ -1,8 +1,5 @@
-import json
 from functools import lru_cache
-from json import dumps
 
-import requests
 from celery import Celery
 from pydantic import BaseSettings
 
@@ -32,9 +29,6 @@ class TaskException(Exception):
 
 
 celery_app = Celery(__name__, broker="redis://redis:6379/0")
-
-
-
 
 
 @celery_app.task(name="refresh_stats", autoretry_for=(TaskException,), retry_kwargs={'max_retries': 7, 'countdown': 5})

@@ -36,3 +36,10 @@ services:
       - mongodb
     volumes:
       - .:/app
+
+  tg_bot:
+    build: .
+    command: tg_bot
+    env_file: .env
+    volumes:
+      - .:/app
