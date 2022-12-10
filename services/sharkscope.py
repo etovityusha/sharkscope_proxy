@@ -1,4 +1,6 @@
 import abc
+import logging
+
 from pydantic import BaseModel
 
 from services.proxy import ProxyService
@@ -52,6 +54,7 @@ class DefaultSharkScopeSvc(SharkScopeSvc):
             }
         else:
             proxies = {}
+        logging.log(logging.INFO, f"Requesting {url} with proxies {proxies}")
         response = requests.get(url, headers=headers, data=payload, proxies=proxies)
         statistic = response.json()["Response"]["PlayerResponse"]["PlayerView"]["Player"]["Statistics"]["Statistic"]
         return Statistic(
