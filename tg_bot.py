@@ -25,9 +25,13 @@ async def cmd_start(message: types.Message) -> None:
 
 
 async def all_other(message: types.Message) -> None:
-    usernames = message.text.split()
+    usernames = message.text.split(",")
     for username in usernames:
-        requests.post(f"http://144.21.40.16:5000/stats/new_or_refresh/<str:username>?username={username}")
+        response = requests.get(f"http://144.21.40.16:5000/stats/<str:username>?username={username}")
+        if response.status_code == 200 and response.json()["found"]:
+            await message.answer(f"{username}\n{response.json()['statistic']}")
+        else:
+            requests.post(f"http://144.21.40.16:5000/stats/new_or_refresh/<str:username>?username={username}")
     await message.answer("OK")
 
 
