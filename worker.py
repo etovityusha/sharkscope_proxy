@@ -34,7 +34,8 @@ celery_app = Celery(__name__, broker="redis://redis:6379/0")
 def refresh_stats(username: str):
     try:
         stats = DefaultSharkScopeSvc(PyProxyService(get_settings().pyproxy_base_url)).get_statistic(username)
-    except:
+    except Exception as e:
+        print(str(e)[:100])
         raise TaskException
     MongoStatsRepo(get_database()).set_statistic(username, StatisticEntity(**stats.dict()))
     return True
