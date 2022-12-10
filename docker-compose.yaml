@@ -1,0 +1,33 @@
+version: "3.7"
+
+services:
+  web:
+    build: .
+    command: web
+    env_file: .env
+    ports:
+      - "${API_LISTEN_PORT}:${API_LISTEN_PORT}"
+    depends_on:
+      - worker
+      - redis
+    volumes:
+        - .:/app
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  worker:
+    build: .
+    command: worker
+    env_file: .env
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+
+volumes:
+    redis-data:
