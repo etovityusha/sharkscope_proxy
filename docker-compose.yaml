@@ -1,24 +1,31 @@
 version: "3.7"
 
 services:
+  mongodb:
+    image: mongo:6.0.3
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "${MONGO_USERNAME}"
+      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_PASSWORD}"
+    ports:
+        - "${MONGO_PORT}:${MONGO_PORT}"
+
   web:
     build: .
     command: web
     env_file: .env
     ports:
-      - "${API_LISTEN_PORT}:${API_LISTEN_PORT}"
+      - "${LISTEN_PORT}:${LISTEN_PORT}"
     depends_on:
       - worker
-      - redis
+      - mongodb
     volumes:
         - .:/app
 
   redis:
     image: redis:alpine
     ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
+        - "${REDIS_PORT}:${REDIS_PORT}"
 
   worker:
     build: .
@@ -26,8 +33,6 @@ services:
     env_file: .env
     depends_on:
       - redis
+      - mongodb
     volumes:
       - .:/app
-
-volumes:
-    redis-data:

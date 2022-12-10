@@ -2,12 +2,7 @@
 import subprocess
 import sys
 
-from environs import Env
-
 from settings import get_settings
-
-env = Env()
-env.read_env()
 
 if __name__ == "__main__":
     _component = sys.argv[1]
@@ -30,5 +25,7 @@ if __name__ == "__main__":
                 ),
                 shell=True,
             )
+        case "worker":
+            subprocess.call("celery -A worker.celery_app worker -l info", shell=True)
         case _:
-            raise Exception(f"Unknown component: {_component}")
+            raise ValueError(f"Unknown component: {_component}")

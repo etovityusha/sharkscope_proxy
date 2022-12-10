@@ -52,7 +52,7 @@ class DefaultSharkScopeSvc(SharkScopeSvc):
             }
         else:
             proxies = {}
-        response = requests.request("GET", url, headers=headers, data=payload, proxies=proxies)
+        response = requests.get(url, headers=headers, data=payload, proxies=proxies)
         statistic = response.json()["Response"]["PlayerResponse"]["PlayerView"]["Player"]["Statistics"]["Statistic"]
         return Statistic(
             tournaments_count=statistic[0]["$"],

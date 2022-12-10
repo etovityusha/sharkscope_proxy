@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     listen_host: str
     listen_port: int
     logger_level: LoggerLevelEnum
-    pyproxy_default_url: str
+    pyproxy_base_url: str
 
     class Config:
         env_file = ".env"
