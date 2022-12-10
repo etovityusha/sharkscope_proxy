@@ -58,6 +58,6 @@ def refresh_stats(username: str, tg_callback: bool = True):
         tg_chat_id = get_tg_bot_settings().tg_chat_id
         requests.get(
             f"https://api.telegram.org/{tg_bot_token}/"
-            f"sendMessage?chat_id={tg_chat_id}&text={dumps(stats.dict(), indent=2)}"
+            f"sendMessage?chat_id={tg_chat_id}&text={username}\n\n{dumps(stats.dict(), indent=2)}"
         )
     return True
