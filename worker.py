@@ -1,3 +1,4 @@
+import json
 from functools import lru_cache
 from json import dumps
 
@@ -9,6 +10,7 @@ from db import get_database
 from repo.stats import MongoStatsRepo, StatisticEntity
 from services.proxy import PyProxyService
 from services.sharkscope import DefaultSharkScopeSvc
+from services.tg import send_stats_to_tg
 from settings import get_settings
 
 
@@ -32,17 +34,7 @@ class TaskException(Exception):
 celery_app = Celery(__name__, broker="redis://redis:6379/0")
 
 
-class TgBotSettings(BaseSettings):
-    tg_bot_token: str
-    tg_chat_id: str
 
-    class Config:
-        env_file = ".env"
-
-
-@lru_cache()
-def get_tg_bot_settings():
-    return TgBotSettings()
 
 
 @celery_app.task(name="refresh_stats", autoretry_for=(TaskException,), retry_kwargs={'max_retries': 7, 'countdown': 5})
@@ -54,10 +46,5 @@ def refresh_stats(username: str, tg_callback: bool = True):
         raise TaskException
     MongoStatsRepo(get_database()).set_statistic(username, StatisticEntity(**stats.dict()))
     if tg_callback:
-        tg_bot_token = get_tg_bot_settings().tg_bot_token
-        tg_chat_id = get_tg_bot_settings().tg_chat_id
-        requests.get(
-            f"https://api.telegram.org/{tg_bot_token}/"
-            f"sendMessage?chat_id={tg_chat_id}&text={username}\n\n{dumps(stats.dict(), indent=2)}"
-        )
+        send_stats_to_tg(stats, username)
     return True
