@@ -23,7 +23,7 @@ services:
         - .:/app
 
   redis:
-    image: redis:alpine
+    image: redis:7.0.7
     ports:
         - "${REDIS_PORT}:${REDIS_PORT}"
 

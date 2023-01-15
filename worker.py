@@ -6,7 +6,7 @@ from pydantic import BaseSettings
 from db import get_database
 from repo.stats import MongoStatsRepo, StatisticEntity
 from services.proxy import PyProxyService
-from services.sharkscope import DefaultSharkScopeSvc
+from services.sharkscope import RequestsSharkScopeSvc
 from services.tg import send_stats_to_tg
 from settings import get_settings
 
@@ -34,7 +34,7 @@ celery_app = Celery(__name__, broker="redis://redis:6379/0")
 @celery_app.task(name="refresh_stats", autoretry_for=(TaskException,), retry_kwargs={'max_retries': 7, 'countdown': 5})
 def refresh_stats(username: str, tg_callback: bool = True):
     try:
-        stats = DefaultSharkScopeSvc(PyProxyService(get_settings().pyproxy_base_url)).get_statistic(username)
+        stats = RequestsSharkScopeSvc(PyProxyService(get_settings().pyproxy_base_url)).get_statistic(username)
     except Exception as e:
         print(str(e)[:100])
         raise TaskException

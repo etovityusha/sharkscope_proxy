@@ -1,10 +1,10 @@
 import abc
 import logging
 
+import requests
 from pydantic import BaseModel
 
 from services.proxy import ProxyService
-import requests
 
 
 class Statistic(BaseModel):
@@ -23,15 +23,10 @@ class SharkScopeSvc(abc.ABC):
         pass
 
 
-class DefaultSharkScopeSvc(SharkScopeSvc):
+class RequestsSharkScopeSvc(SharkScopeSvc):
     def __init__(self, proxy_svc: ProxyService | None = None):
         self.proxy_svc = proxy_svc if proxy_svc is not None else None
-
-    def get_statistic(self, username: str) -> Statistic:
-        url = f"https://ru.sharkscope.com/poker-statistics/networks/GGNetwork/players/{username}?&Currency=USD"
-
-        payload = {}
-        headers = {
+        self.headers = {
             'Accept': 'application/json, text/javascript, */*; q=0.01',
             'Accept-Language': 'ru,en;q=0.9',
             'Connection': 'keep-alive',
@@ -47,6 +42,11 @@ class DefaultSharkScopeSvc(SharkScopeSvc):
             'sec-ch-ua-mobile': '?0',
             'sec-ch-ua-platform': '"Linux"'
         }
+
+    def get_statistic(self, username: str) -> Statistic:
+        url = f"https://ru.sharkscope.com/poker-statistics/networks/GGNetwork/players/{username}?&Currency=USD"
+
+        payload = {}
         if self.proxy_svc is not None:
             proxies = {
                 "http": self.proxy_svc.get_proxy(),
@@ -55,7 +55,7 @@ class DefaultSharkScopeSvc(SharkScopeSvc):
         else:
             proxies = {}
         logging.log(logging.INFO, f"Requesting {url} with proxies {proxies}")
-        response = requests.get(url, headers=headers, data=payload, proxies=proxies)
+        response = requests.get(url, headers=self.headers, data=payload, proxies=proxies)
         statistic = response.json()["Response"]["PlayerResponse"]["PlayerView"]["Player"]["Statistics"]["Statistic"]
         return Statistic(
             tournaments_count=statistic[0]["$"],
